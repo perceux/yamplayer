@@ -1,0 +1,18 @@
+package org.dreamsoft.yamplayer.client;
+
+import com.google.gwt.core.client.EntryPoint;
+import com.google.gwt.user.client.ui.RootPanel;
+import com.google.gwt.user.client.ui.VerticalPanel;
+
+/**
+ * Entry point classes define <code>onModuleLoad()</code>.
+ */
+public class YamPlayer implements EntryPoint {
+	private YamBoard board = new YamBoard();
+
+	public void onModuleLoad() {
+		VerticalPanel vpanel = new VerticalPanel();
+		vpanel.add(board);
+		RootPanel.get().add(vpanel);
+	}
+}
