@@ -1,17 +1,15 @@
 package org.dreamsoft.yamplayer.client.combinaison;
 
-import com.google.gwt.user.client.Command;
 
 public class UpperCombinaison extends Combinaison {
 
 	private int targetValue = 0;
 
-	public UpperCombinaison(int targetValue, String name, Command command) {
-		super(name, command, true);
+	public UpperCombinaison(int targetValue) {
 		this.targetValue = targetValue;
 	}
 
-	public int getScoreDices(int[] dices) {
+	public int getScore(int[] dices) {
 		int result = 0;
 		for (int i = 0; i < dices.length; i++) {
 			if (dices[i] == targetValue) {
@@ -21,7 +19,7 @@ public class UpperCombinaison extends Combinaison {
 		return result;
 	}
 
-	public double getMedianScoreDices() {
+	public double getMedianScore() {
 		return targetValue * 5.0 / 2.0;
 	}
 

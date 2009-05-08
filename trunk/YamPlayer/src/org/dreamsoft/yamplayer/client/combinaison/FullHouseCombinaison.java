@@ -1,17 +1,13 @@
 package org.dreamsoft.yamplayer.client.combinaison;
 
-import com.google.gwt.user.client.Command;
 
 public class FullHouseCombinaison extends Combinaison {
-	public FullHouseCombinaison(String name, Command cmd) {
-		super(name, cmd);
-	}
 
-	public int getScoreDices(int[] dices) {
+	public int getScore(int[] dices) {
 		return 25;
 	}
 
-	public double getMedianScoreDices() {
+	public double getMedianScore() {
 		return 12.5;
 	}
 	

@@ -1,9 +1,11 @@
-package org.dreamsoft.yamplayer.client.proba;
+package org.dreamsoft.yamplayer.client.combinaison.stats;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
-public class ProbaCalculator {
-	// TODO combinaison plutot que produit cartésien
+import org.dreamsoft.yamplayer.client.combinaison.Combinaison;
+
+public class CombinaisonStatsCalculator {
 
 	public static int nextTestVal(int testVal) {
 		int nextTestVal = testVal;
@@ -21,7 +23,7 @@ public class ProbaCalculator {
 				}
 				return nextTestVal;
 			}
-			
+
 		}
 		return -1;
 	}
@@ -57,6 +59,35 @@ public class ProbaCalculator {
 			intVal /= 10;
 		}
 		return result;
+	}
+
+	public static CombinaisonStats computeStatistics(Combinaison combinaison, int[] selectedDices, int scoreCompare) {
+		ArrayList<int[]> dices = getPotentialListDices(selectedDices);
+		int matches = 0;
+		int matchesScoreMedian = 0;
+		int matchesScoreBetter = 0;
+		int matchesScoreLesser = 0;
+		int matchesScoreEquals = 0;
+
+		for (Iterator<int[]> iterator = dices.iterator(); iterator.hasNext();) {
+			int[] testDices = iterator.next();
+			int matchingScore = combinaison.getMatchingScore(testDices);
+			if (matchingScore > 0) {
+				matches++;
+				if (matchingScore >= combinaison.getMedianScore())
+					matchesScoreMedian++;
+			}
+			if (matchingScore > scoreCompare)
+				matchesScoreBetter++;
+			else {
+				if (matchingScore < scoreCompare)
+					matchesScoreLesser++;
+				else {
+					matchesScoreEquals++;
+				}
+			}
+		}
+		return new CombinaisonStats(dices, matches, matchesScoreMedian, matchesScoreBetter, matchesScoreLesser, matchesScoreEquals);
 	}
 
 }

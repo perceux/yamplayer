@@ -1,12 +1,10 @@
 package org.dreamsoft.yamplayer.client.combinaison;
 
-import com.google.gwt.user.client.Command;
 
 public class IdenticalCombinaison extends Combinaison {
 	protected int targetMinNumber = 3;
 
-	public IdenticalCombinaison(int targetMinNumber, String name, Command command) {
-		super(name, command, true);
+	public IdenticalCombinaison(int targetMinNumber) {
 		this.targetMinNumber = targetMinNumber;
 	}
 

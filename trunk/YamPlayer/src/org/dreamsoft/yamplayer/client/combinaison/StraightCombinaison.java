@@ -2,8 +2,6 @@ package org.dreamsoft.yamplayer.client.combinaison;
 
 import java.util.Arrays;
 
-import com.google.gwt.user.client.Command;
-
 public class StraightCombinaison extends Combinaison {
 
 	public static final int SMALL = 1;
@@ -12,18 +10,17 @@ public class StraightCombinaison extends Combinaison {
 	private int maxScore;
 	private int minLength;
 
-	public double getMedianScoreDices() {
+	public double getMedianScore() {
 		return maxScore / 2.0;
 	}
 
-	public StraightCombinaison(int typeStraight, String name, Command command) {
-		super(name, command);
+	public StraightCombinaison(int typeStraight) {
 		this.minLength = (typeStraight == 1) ? 4 : 5;
 		this.maxScore = (typeStraight == SMALL) ? 30 : 40;
 	}
 
 	@Override
-	public int getScoreDices(int[] dices) {
+	public int getScore(int[] dices) {
 		return maxScore;
 	}
 
