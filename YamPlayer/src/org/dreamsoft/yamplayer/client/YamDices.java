@@ -5,71 +5,44 @@ import java.util.Iterator;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.Command;
-import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Grid;
 
 public class YamDices extends Composite {
-	private Grid diceGrid = new Grid(6, 1);
-	private Button rollButton = new Button("Roll");
+	private Grid diceGrid = new Grid(5, 1);
 	private ArrayList<Dice> dices = new ArrayList<Dice>();
-	private int rollNumber = 3;
-	private Command afterRollCommand = null;
 
-	public YamDices(Command afterRollCommand, Command afterToggleSelectCommand) {
-		this.afterRollCommand = afterRollCommand;
-		rollButton.addClickHandler(new ClickHandler() {
-			public void onClick(ClickEvent event) {
-				roll();
-			}
-		});
-
+	public YamDices() {
 		for (int i = 0; i < 5; i++) {
-			Dice d = new Dice(i + 1, afterToggleSelectCommand);
+			final Dice d = new Dice(i + 1);
+			d.addClickHandler(new ClickHandler() {
+				public void onClick(ClickEvent event) {
+					d.toggleSelect();
+					fireDiceSelectionChangeEvent();
+				}
+			});
 			dices.add(d);
 			diceGrid.setWidget(i, 0, d);
 		}
-		diceGrid.setWidget(5, 0, rollButton);
 		initWidget(diceGrid);
 	}
 
 	public void roll() {
-		if (rollNumber > 0) {
-			rollNumber--;
-			for (Iterator<Dice> iterator = dices.iterator(); iterator.hasNext();) {
-				Dice d = (Dice) iterator.next();
-				if (!d.isSelected()) {
-					d.roll();
-					if (rollNumber == 0)
-						d.setSelected(true);
-				}
-			}
-		}
-		if (afterRollCommand != null) {
-			afterRollCommand.execute();
-		}
-	}
-
-	public void reset() {
-		setRollNumber(3);
 		for (Iterator<Dice> iterator = dices.iterator(); iterator.hasNext();) {
 			Dice d = (Dice) iterator.next();
-			d.setSelected(false);
+			if (!d.isSelected()) {
+				d.roll();
+			}
 		}
-		roll();
+		fireDiceSelectionChangeEvent();
 	}
 
-	public int getRollNumber() {
-		return rollNumber;
-	}
-
-	public void setRollNumber(int rollNumber) {
-		this.rollNumber = rollNumber;
-	}
-
-	public ArrayList<Dice> getDices() {
-		return dices;
+	public void selectAll(boolean selected) {
+		for (Iterator<Dice> iterator = dices.iterator(); iterator.hasNext();) {
+			Dice d = (Dice) iterator.next();
+			d.setSelected(selected);
+		}
+		fireDiceSelectionChangeEvent();
 	}
 
 	public ArrayList<Dice> getSelectedDices() {
@@ -81,15 +54,6 @@ public class YamDices extends Composite {
 			}
 		}
 		return selectedDice;
-	}
-
-	public String getStringDices() {
-		String result = "";
-		for (Iterator<Dice> iterator = dices.iterator(); iterator.hasNext();) {
-			Dice d = iterator.next();
-			result += d.getValue();
-		}
-		return result;
 	}
 
 	public int[] getIntDices() {
@@ -111,5 +75,9 @@ public class YamDices extends Composite {
 			i++;
 		}
 		return result;
+	}
+
+	protected void fireDiceSelectionChangeEvent() {
+
 	}
 }

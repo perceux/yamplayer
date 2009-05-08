@@ -1,17 +1,16 @@
 package org.dreamsoft.yamplayer.client.combinaison;
 
-import com.google.gwt.user.client.Command;
 
 public class YahtzeeCombinaison extends IdenticalCombinaison {
-	public YahtzeeCombinaison(String name, Command command) {
-		super(5, name, command);
+	public YahtzeeCombinaison() {
+		super(5);
 	}
 
-	public int getScoreDices(int[] dices) {
+	public int getScore(int[] dices) {
 		return 50;
 	}
 
-	public double getMedianScoreDices() {
+	public double getMedianScore() {
 		return 50 / 2.0;
 	}
 }
