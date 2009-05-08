@@ -5,6 +5,8 @@ import org.dreamsoft.yamplayer.client.ui.PlayerSheet;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.KeyPressEvent;
+import com.google.gwt.event.dom.client.KeyPressHandler;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlexTable;
@@ -18,17 +20,18 @@ public class YamBoard extends Composite {
 	final Button rollButton = new Button("ROLL");
 	final Button addPlayerButton = new Button("+");
 	final Button removePlayerButton = new Button("-");
+	final Button startGameButton = new Button("START");
 
 	private YamSheet yamSheet = new YamSheet() {
 		@Override
-		public void fireCombinaisonClickEvent(int i, PlayerSheet activePlayerSheet, Combinaison combinaison) {
-			if (activePlayerSheet.getScore(i) == null) {
+		public void fireCellClickEvent(int row) {
+			Combinaison combinaison = getSheetHeaderCell(row).getCombinaison();
+			PlayerSheet s = getActiveSheet();
+			if (s != null && s.getScore(row) == null) {
 				// calculate score
-				activePlayerSheet.setScore(i, combinaison.getMatchingScore(yamDices.getIntDices()));
+				s.setScore(row, combinaison.getMatchingScore(yamDices.getIntDices()));
 				// clean player
-				refreshActivePlayerSheet();
-				// next
-				setActivePlayerSheet(getNextPlayerSheet());
+				nextPlayer();
 				// New Turn
 				newTurn();
 			}
@@ -40,53 +43,75 @@ public class YamBoard extends Composite {
 		protected void fireDiceSelectionChangeEvent() {
 			yamSheet.getScoreRenderer().setEnableEvalutedScore(true);
 			yamSheet.getScoreRenderer().setEnableCompareScore(true);
-			yamSheet.refreshActivePlayerSheet();
+			yamSheet.getScoreRenderer().setEnableMatchScore(true);
+			yamSheet.refreshPlayerSheet(-1);
 			yamSheet.getScoreRenderer().setEnableEvalutedScore(false);
 		}
 	};
 
 	public YamBoard() {
-
+		namePlayer.addKeyPressHandler(new KeyPressHandler() {
+			public void onKeyPress(KeyPressEvent event) {
+				if (event.getCharCode() == 13) {
+					addPlayerButton.click();
+				}
+			}
+		});
 		rollButton.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				rollDices();
-
 			}
 
 		});
 		addPlayerButton.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				yamSheet.addPlayer(namePlayer.getText());
+				reset();
+				namePlayer.setText("");
+				namePlayer.setFocus(true);
 			}
 		});
 		removePlayerButton.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				yamSheet.removePlayer(namePlayer.getText());
+				reset();
+				namePlayer.setText("");
+				namePlayer.setFocus(true);
 			}
 		});
-
+		startGameButton.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent event) {
+				yamSheet.resetScore();
+				yamSheet.setActivePlayer(0);
+				newTurn();
+			}
+		});
 		yamSheet.getScoreRenderer().setYamDices(yamDices);
 		yamSheet.getScoreRenderer().setEnableCompareScore(false);
 
 		FlexTable table = new FlexTable();
-		table.setSize("600", "400");
 		table.setBorderWidth(1);
 		table.setCellPadding(0);
 		table.setCellSpacing(2);
 		table.setWidget(0, 0, yamSheet);
-		table.getFlexCellFormatter().setColSpan(0, 0, 3);
-		table.getCellFormatter().setWidth(0, 0, "100%");
+		table.getFlexCellFormatter().setColSpan(0, 0, 4);
+		//table.getCellFormatter().setWidth(0, 0, "100%");
 		table.setWidget(0, 1, yamDices);
 		table.getFlexCellFormatter().setHorizontalAlignment(0, 1, HasHorizontalAlignment.ALIGN_CENTER);
 		table.setWidget(1, 0, namePlayer);
 		table.setWidget(1, 1, addPlayerButton);
 		table.setWidget(1, 2, removePlayerButton);
-		table.setWidget(1, 3, rollButton);
-		yamSheet.addPlayer("p1");
-		yamSheet.addPlayer("p2");
-		newTurn();
+		table.setWidget(1, 3, startGameButton);
+		table.setWidget(1, 4, rollButton);
+		reset();
 		initWidget(table);
 
+	}
+
+	private void reset() {
+		setRollAttempt(0);
+		yamSheet.resetScore();
+		startGameButton.setEnabled(yamSheet.getPlayerCount()>0);
 	}
 
 	protected void newTurn() {

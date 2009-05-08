@@ -1,8 +1,5 @@
 package org.dreamsoft.yamplayer.client;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-
 import org.dreamsoft.yamplayer.client.combinaison.Combinaison;
 import org.dreamsoft.yamplayer.client.combinaison.FullHouseCombinaison;
 import org.dreamsoft.yamplayer.client.combinaison.IdenticalCombinaison;
@@ -15,125 +12,125 @@ import org.dreamsoft.yamplayer.client.ui.SheetHeaderCell;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlexTable;
-import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.user.client.ui.HTMLTable.Cell;
 
 public class YamSheet extends Composite {
 	private static final int FIRST_COLUMN_PLAYER_SHEET = 1;
 
 	private FlexTable playerTable = new FlexTable();
-	private PlayerSheet activePlayerSheet = null;
+	private int player = -1;
 	private ScoreRenderer scoreRenderer = new ScoreRenderer();
-
-	private ArrayList<Command> refreshCommands = new ArrayList<Command>();
 
 	public YamSheet() {
 		playerTable.setCellPadding(0);
 		playerTable.setCellSpacing(0);
-		playerTable.setWidth("100%");
 		playerTable.setBorderWidth(1);
 		playerTable.setHTML(0, 0, "");
+		playerTable.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent event) {
+				Cell c = playerTable.getCellForEvent(event);
+				fireCellClickEvent(c.getRowIndex());
+			}
+		});
 
-		addLine(1, "ACES", new UpperCombinaison(1));
-		addLine(2, "TWOS", new UpperCombinaison(2));
-		addLine(3, "THREES", new UpperCombinaison(3));
-		addLine(4, "FOURS", new UpperCombinaison(4));
-		addLine(5, "FIVES", new UpperCombinaison(5));
-		addLine(6, "SIXES", new UpperCombinaison(6));
+		playerTable.setWidget(1, 0, new SheetHeaderCell("ACES", new UpperCombinaison(1)));
+		playerTable.setWidget(2, 0, new SheetHeaderCell("TWOS", new UpperCombinaison(2)));
+		playerTable.setWidget(3, 0, new SheetHeaderCell("THREES", new UpperCombinaison(3)));
+		playerTable.setWidget(4, 0, new SheetHeaderCell("FOURS", new UpperCombinaison(4)));
+		playerTable.setWidget(5, 0, new SheetHeaderCell("FIVES", new UpperCombinaison(5)));
+		playerTable.setWidget(6, 0, new SheetHeaderCell("SIXES", new UpperCombinaison(6)));
 
-		addBonusLine(7, "BONUS", new int[] { 1, 2, 3, 4, 5, 6 });
-		addSubTotalLine(8, "UPPER TOTAL", new int[] { 1, 2, 3, 4, 5, 6, 7 });
+		playerTable.setWidget(7, 0, new SheetHeaderCell("BONUS", new int[] { 1, 2, 3, 4, 5, 6 }, 63, 35));
+		playerTable.setWidget(8, 0, new SheetHeaderCell("UPPER TOTAL", new int[] { 1, 2, 3, 4, 5, 6, 7 }));
 
-		addLine(9, "3 OF A KIND", new IdenticalCombinaison(3));
-		addLine(10, "4 OF A KIND", new IdenticalCombinaison(4));
-		addLine(11, "FULL HOUSE", new FullHouseCombinaison());
-		addLine(12, "SMALL STRAIGHT", new StraightCombinaison(StraightCombinaison.SMALL));
-		addLine(13, "LARGE STRAIGHT", new StraightCombinaison(StraightCombinaison.LARGE));
-		addLine(14, "CHANCE", new Combinaison());
-		addLine(15, "YAHTZEE", new YahtzeeCombinaison());
+		playerTable.setWidget(9, 0, new SheetHeaderCell("3 OF A KIND", new IdenticalCombinaison(3)));
+		playerTable.setWidget(10, 0, new SheetHeaderCell("4 OF A KIND", new IdenticalCombinaison(4)));
+		playerTable.setWidget(11, 0, new SheetHeaderCell("FULL HOUSE", new FullHouseCombinaison()));
+		playerTable.setWidget(12, 0, new SheetHeaderCell("SMALL STRAIGHT", new StraightCombinaison(StraightCombinaison.SMALL)));
+		playerTable.setWidget(13, 0, new SheetHeaderCell("LARGE STRAIGHT", new StraightCombinaison(StraightCombinaison.LARGE)));
+		playerTable.setWidget(14, 0, new SheetHeaderCell("CHANCE", new Combinaison()));
+		playerTable.setWidget(15, 0, new SheetHeaderCell("YAHTZEE", new YahtzeeCombinaison()));
 
-		addSubTotalLine(16, "LOWER TOTAL", new int[] { 9, 10, 11, 12, 13, 14, 15 });
-		addSubTotalLine(17, "TOTAL", new int[] { 8, 16 });
-
+		playerTable.setWidget(16, 0, new SheetHeaderCell("LOWER TOTAL", new int[] { 9, 10, 11, 12, 13, 14, 15 }));
+		playerTable.setWidget(17, 0, new SheetHeaderCell("TOTAL", new int[] { 8, 16 }));
+		playerTable.getColumnFormatter().setStyleName(0, "header");
+		playerTable.getRowFormatter().setStyleName(0, "names");
 		initWidget(playerTable);
 	}
 
 	public void addPlayer(String name) {
 		if (name != null && name.length() > 0) {
-			int n = playerTable.getCellCount(0);
-			PlayerSheet playerSheet = new PlayerSheet(name, n);
-			playerTable.setWidget(0, n, playerSheet);
-			setActivePlayerSheet(playerSheet);
-			refreshActivePlayerSheet();
+			int n = getPlayerCount();
+			final PlayerSheet playerSheet = new PlayerSheet(name, n);
+			playerSheet.addClickHandler(new ClickHandler() {
+				public void onClick(ClickEvent event) {
+					setActivePlayer(playerSheet.getNumber());
+				}
+			});
+			playerTable.setWidget(0, n + FIRST_COLUMN_PLAYER_SHEET, playerSheet);
+			resetScore();
 		}
 	}
 
-	public void refreshActivePlayerSheet() {
-		// refresh
-		for (Iterator<Command> iterator = refreshCommands.iterator(); iterator.hasNext();) {
-			iterator.next().execute();
-		}
-		// draw
-		int nRow = playerTable.getRowCount();
-		for (int i = 1; i < nRow; i++) {
-			SheetHeaderCell sheetHeaderCell = (SheetHeaderCell) playerTable.getWidget(i, 0);
-			playerTable.setHTML(i, activePlayerSheet.getNumber(), scoreRenderer.renderScore(i, activePlayerSheet, sheetHeaderCell.getCombinaison()));
-		}
+	public PlayerSheet getPlayerSheet(int index) {
+		PlayerSheet playerSheet = null;
+		int n = playerTable.getCellCount(0);
+		if (index + FIRST_COLUMN_PLAYER_SHEET < n)
+			playerSheet = (PlayerSheet) playerTable.getWidget(0, index + FIRST_COLUMN_PLAYER_SHEET);
+		return playerSheet;
 	}
 
-	private void addBonusLine(final int i, String text, final int[] lines) {
-		SheetHeaderCell cell = new SheetHeaderCell(text, null);
-		playerTable.setWidget(i, 0, cell);
-		refreshCommands.add(new Command() {
-			public void execute() {
-				if (activePlayerSheet.getSubTotal(lines) >= 63)
-					activePlayerSheet.setScore(i, 35);
+	public SheetHeaderCell getSheetHeaderCell(int indexRow) {
+		SheetHeaderCell sheetHeaderCell = null;
+		if (indexRow > 0)
+			sheetHeaderCell = (SheetHeaderCell) playerTable.getWidget(indexRow, 0);
+		return sheetHeaderCell;
+	}
+
+	public PlayerSheet getActiveSheet() {
+		return getPlayerSheet(player);
+	}
+
+	public void refreshPlayerSheet(int index) {
+		PlayerSheet s = index == -1 ? getActiveSheet() : getPlayerSheet(index);
+		if (s != null) {
+			int nRow = playerTable.getRowCount();
+			for (int i = 1; i < nRow; i++) {
+				SheetHeaderCell sheetHeaderCell = (SheetHeaderCell) playerTable.getWidget(i, 0);
+				playerTable.setHTML(i, s.getNumber() + FIRST_COLUMN_PLAYER_SHEET, scoreRenderer.renderScore(i, s, sheetHeaderCell));
 			}
-		});
-	}
-
-	private void addSubTotalLine(final int i, String text, final int[] lines) {
-		SheetHeaderCell cell = new SheetHeaderCell(text, null);
-		playerTable.setWidget(i, 0, cell);
-		refreshCommands.add(new Command() {
-			public void execute() {
-				activePlayerSheet.setSubTotal(i, lines);
-			}
-		});
-	}
-
-	private void addLine(final int i, String text, final Combinaison combinaison) {
-		SheetHeaderCell cell = new SheetHeaderCell(text, combinaison);
-		cell.addClickHandler(new ClickHandler() {
-			public void onClick(ClickEvent event) {
-				fireCombinaisonClickEvent(i, activePlayerSheet, combinaison);
-			}
-		});
-		playerTable.setWidget(i, 0, cell);
-	}
-
-	public PlayerSheet getNextPlayerSheet() {
-		PlayerSheet nextPlayerSheet = null;
-		int n = 0;
-		if (activePlayerSheet != null)
-			n = activePlayerSheet.getNumber();
-		n++;
-		if (n >= playerTable.getCellCount(0))
-			n = FIRST_COLUMN_PLAYER_SHEET;
-		Widget w = playerTable.getWidget(0, n);
-		if (w instanceof PlayerSheet)
-			nextPlayerSheet = (PlayerSheet) w;
-		return nextPlayerSheet;
-	}
-
-	public void setActivePlayerSheet(PlayerSheet p) {
-		if (activePlayerSheet != null) {
-			playerTable.getColumnFormatter().setStyleName(activePlayerSheet.getNumber(), "playerunselected");
 		}
-		playerTable.getColumnFormatter().setStyleName(p.getNumber(), "playerselected");
-		activePlayerSheet = p;
+	}
+
+	protected void nextPlayer() {
+		refreshPlayerSheet(-1);
+		setActivePlayer(getNextPlayer());
+	}
+
+	public int getNextPlayer() {
+		int p = player + 1;
+		if (p + FIRST_COLUMN_PLAYER_SHEET > getPlayerCount()) {
+			p = 0;
+		}
+		return p;
+	}
+
+	public int getPlayerCount() {
+		return playerTable.getCellCount(0) - FIRST_COLUMN_PLAYER_SHEET;
+	}
+
+	public void setActivePlayer(int p) {
+		highlightPlayer(player, false);
+		highlightPlayer(p, true);
+		player = p;
+	}
+
+	public void highlightPlayer(int index, boolean selected) {
+		if (index >= 0) {
+			playerTable.getColumnFormatter().setStyleName(index + FIRST_COLUMN_PLAYER_SHEET, selected ? "playerselected" : "playerunselected");
+		}
 	}
 
 	public ScoreRenderer getScoreRenderer() {
@@ -144,23 +141,36 @@ public class YamSheet extends Composite {
 		this.scoreRenderer = scoreRenderer;
 	}
 
-	public void fireCombinaisonClickEvent(int i, PlayerSheet activePlayerSheet, Combinaison combinaison) {
-
-	}
-
 	public void removePlayer(String name) {
 		if (name != null && name.length() > 0) {
-			int nCol = playerTable.getCellCount(0);
-			int nRow = playerTable.getRowCount();
-			for (int i = 0; i < nCol; i++) {
-				if (name.equals(playerTable.getText(0, i))) {
-					activePlayerSheet = null;
-					for (int j = 0; j < nRow; j++) {
-						playerTable.removeCell(j, i);
+			int removedCol = 0;
+			for (int i = 0; i < getPlayerCount(); i++) {
+				PlayerSheet s = getPlayerSheet(i);
+				s.setNumber(s.getNumber() - removedCol);
+				if (s != null && name.equals(s.getPlayerName())) {
+					for (int j = 0; j < playerTable.getRowCount(); j++) {
+						playerTable.removeCell(j, s.getNumber() + FIRST_COLUMN_PLAYER_SHEET);
 					}
-					activePlayerSheet = getNextPlayerSheet();
+					removedCol++;
+					i--;
 				}
 			}
+			setActivePlayer(0);
 		}
+	}
+
+	public void resetScore() {
+		scoreRenderer.setEnableEvalutedScore(false);
+		for (int i = 0; i < getPlayerCount(); i++) {
+			getPlayerSheet(i).clearScores();
+			refreshPlayerSheet(i);
+			highlightPlayer(i, false);
+		}
+		scoreRenderer.setEnableEvalutedScore(true);
+		setActivePlayer(0);
+	}
+
+	public void fireCellClickEvent(int row) {
+		return;
 	}
 }

@@ -10,10 +10,12 @@ import com.google.gwt.user.client.ui.HTML;
 public class PlayerSheet extends HTML {
 	HashMap<Integer, Integer> scores = new HashMap<Integer, Integer>();
 	private int number;
+	private String playerName;
 
 	public PlayerSheet(String playerName, int number) {
 		super(playerName);
 		this.number = number;
+		this.playerName = playerName;
 	}
 
 	public int getNumber() {
@@ -50,4 +52,17 @@ public class PlayerSheet extends HTML {
 		}
 		return getSubTotal(l);
 	}
+
+	public void clearScores() {
+		scores.clear();
+	}
+
+	public String getPlayerName() {
+		return playerName;
+	}
+
+	public void setNumber(int number) {
+		this.number = number;
+	}
+
 }
