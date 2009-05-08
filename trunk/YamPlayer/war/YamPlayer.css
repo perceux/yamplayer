@@ -1,10 +1,72 @@
 /** Add css rules here for your application. */
 .diceselected {
-	border:3px solid black;
+	border: 3px solid black;
 }
 
 .diceunselected {
-	border:3px solid white;
+	border: 3px solid white;
+}
+
+.playerselected {
+	background-color: #DDDDFF;
+	color: #000000;
+	width: 120px;
+}
+
+.playerunselected {
+	background-color: #FFFFFF;
+	color: #CCCCCC;
+	width: 120px;
+}
+
+.header {
+	text-align: right;
+	width: 200px;
+	
+}
+
+.names {
+	text-align: center;
+	font-variant: small-caps;	
+}
+.gwt-Button {
+	width:80;
+	font-variant: small-caps;
+	text-align: center;
+}
+
+table.stats {
+	font-size: xx-small;
+	display: inline;
+	text-align: right;
+	width: 100%;
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+
+table.stats tr td.evaluated {
+	font-size: small;
+	color: #550055;
+	display: inline;
+	text-align: left;
+	width: 25%;
+}
+
+table.stats tr td.cmp {
+	margin: 0;
+	padding:1px;
+	border: 1px dotted #AAAAFF;
+	font-size: 9px;
+	display: inline;
+	text-align: center;
+	width: 25%;
+	white-space: nowrap;
+}
+
+table.stats tr td.cmp sup {
+	margin: 1px;
+	font-size: 12px;
+	display: inline;
 }
 
 .fixedScore {
@@ -16,24 +78,24 @@
 }
 
 .small {
-  display: block;
-  font-size: 12px;
+	display: block;
+	font-size: 12px;
 }
 
 /** Most GWT widgets already have a style name defined */
 .gwt-DialogBox {
-  width: 400px;
+	width: 400px;
 }
 
 .dialogVPanel {
-  margin: 5px;
+	margin: 5px;
 }
 
 .serverResponseLabelError {
-  color: red;
+	color: red;
 }
 
 /** Set ids using widget.getElement().setId("idOfElement") */
 #closeButton {
-  margin: 15px 6px 6px;
+	margin: 15px 6px 6px;
 }
