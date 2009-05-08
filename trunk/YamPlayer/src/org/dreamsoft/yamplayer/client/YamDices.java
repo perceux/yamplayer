@@ -17,7 +17,7 @@ public class YamDices extends Composite {
 	private int rollNumber = 3;
 	private Command afterRollCommand = null;
 
-	public YamDices(Command afterRollCommand) {
+	public YamDices(Command afterRollCommand, Command afterToggleSelectCommand) {
 		this.afterRollCommand = afterRollCommand;
 		rollButton.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
@@ -26,7 +26,7 @@ public class YamDices extends Composite {
 		});
 
 		for (int i = 0; i < 5; i++) {
-			Dice d = new Dice(i + 1);
+			Dice d = new Dice(i + 1, afterToggleSelectCommand);
 			dices.add(d);
 			diceGrid.setWidget(i, 0, d);
 		}
@@ -41,6 +41,8 @@ public class YamDices extends Composite {
 				Dice d = (Dice) iterator.next();
 				if (!d.isSelected()) {
 					d.roll();
+					if (rollNumber == 0)
+						d.setSelected(true);
 				}
 			}
 		}
@@ -57,7 +59,7 @@ public class YamDices extends Composite {
 		}
 		roll();
 	}
-	
+
 	public int getRollNumber() {
 		return rollNumber;
 	}
@@ -68,5 +70,46 @@ public class YamDices extends Composite {
 
 	public ArrayList<Dice> getDices() {
 		return dices;
+	}
+
+	public ArrayList<Dice> getSelectedDices() {
+		ArrayList<Dice> selectedDice = new ArrayList<Dice>();
+		for (Iterator<Dice> iterator = dices.iterator(); iterator.hasNext();) {
+			Dice d = iterator.next();
+			if (d.isSelected()) {
+				selectedDice.add(d);
+			}
+		}
+		return selectedDice;
+	}
+
+	public String getStringDices() {
+		String result = "";
+		for (Iterator<Dice> iterator = dices.iterator(); iterator.hasNext();) {
+			Dice d = iterator.next();
+			result += d.getValue();
+		}
+		return result;
+	}
+
+	public int[] getIntDices() {
+		int[] result = new int[dices.size()];
+		int i = 0;
+		for (Iterator<Dice> iterator = dices.iterator(); iterator.hasNext();) {
+			result[i] = (iterator.next().getValue());
+			i++;
+		}
+		return result;
+	}
+
+	public int[] getIntSeletedDices() {
+		ArrayList<Dice> selectedDices = getSelectedDices();
+		int[] result = new int[selectedDices.size()];
+		int i = 0;
+		for (Iterator<Dice> iterator = selectedDices.iterator(); iterator.hasNext();) {
+			result[i] = (iterator.next().getValue());
+			i++;
+		}
+		return result;
 	}
 }
