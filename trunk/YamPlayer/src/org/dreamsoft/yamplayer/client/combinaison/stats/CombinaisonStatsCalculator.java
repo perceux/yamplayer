@@ -8,22 +8,22 @@ import org.dreamsoft.yamplayer.client.combinaison.Combinaison;
 public class CombinaisonStatsCalculator {
 
 	public static int nextTestVal(int testVal) {
-		int nextTestVal = testVal;
+		int nextTestVal = testVal; // 426
 		int coeff = 1;
 		int c = 1;
 		while (c > 0) {
-			c = Math.round(testVal / coeff) % 10;
+			c = Math.round(testVal / coeff) % 10; // 6,2,4
 			coeff *= 10;
-			nextTestVal = Math.round(testVal / coeff) * coeff;
+			nextTestVal = Math.round(testVal / coeff) * coeff; // 42
 			if (c > 0 && c < 6) {
-				c++;
+				c++; // 2 => 3
 				while (coeff >= 10) {
 					coeff /= 10;
-					nextTestVal += c * coeff;
+					nextTestVal += c * coeff; // 431, 432, 433, ... 436, 441..446, 451 ... 666
+					c=1;
 				}
 				return nextTestVal;
 			}
-
 		}
 		return -1;
 	}
